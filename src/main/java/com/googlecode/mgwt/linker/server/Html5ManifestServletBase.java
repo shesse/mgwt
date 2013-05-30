@@ -275,7 +275,7 @@ public class Html5ManifestServletBase extends HttpServlet {
     if (computedBindings == null) {
       throw new IllegalArgumentException("computedBindings can not be null");
     }
-
+    
     String realPath = getServletContext().getRealPath(baseUrl + moduleName + "/" + PermutationMapLinker.MANIFEST_MAP_FILE_NAME);
 
     FileInputStream fileInputStream = null;
@@ -286,7 +286,15 @@ public class Html5ManifestServletBase extends HttpServlet {
       Map<String, List<BindingProperty>> map = permutationProvider.getBindingProperties(fileInputStream);
       for (Entry<String, List<BindingProperty>> entry : map.entrySet()) {
         List<BindingProperty> value = entry.getValue();
-        if (value.containsAll(computedBindings) && value.size() == computedBindings.size()) {
+        boolean permutationMatches = true;
+        for (BindingProperty b: value) {
+        	if (!computedBindings.contains(b)) {
+        		// binding within permutation does not match computedBinding
+        		permutationMatches = false;
+        		break;
+        	}
+        }
+        if (permutationMatches) {
           return entry.getKey();
         }
       }
